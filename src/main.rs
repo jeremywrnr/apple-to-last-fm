@@ -58,7 +58,7 @@ fn main() -> Result<()> {
     // Only forward logs from this crate — suppress rustls/ureq/etc. noise.
     let filter = Targets::new().with_target("apple_to_last_fm", tracing::Level::INFO);
     tracing_subscriber::registry()
-        .with(tracing_oslog::OsLogger::new("com.apple-to-last-fm", "default").with_filter(filter))
+        .with(tracing_oslog::OsLogger::new(daemon::LABEL, "default").with_filter(filter))
         .init();
 
     let cli = Cli::parse();
@@ -76,14 +76,9 @@ fn main() -> Result<()> {
 }
 
 fn cmd_logs() -> Result<()> {
+    let predicate = format!("subsystem == \"{}\"", daemon::LABEL);
     std::process::Command::new("log")
-        .args([
-            "stream",
-            "--predicate",
-            "subsystem == \"com.apple-to-last-fm\"",
-            "--level",
-            "info",
-        ])
+        .args(["stream", "--predicate", &predicate, "--level", "info"])
         .status()?;
     Ok(())
 }

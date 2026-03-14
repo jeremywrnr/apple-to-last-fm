@@ -3,22 +3,28 @@ use std::process::Command;
 
 use crate::error::{AppError, Result};
 
-const LABEL: &str = "com.apple-to-last-fm";
+pub const LABEL: &str = "com.apple-to-last-fm";
+
+fn home_dir() -> PathBuf {
+    dirs::home_dir().unwrap_or_else(|| PathBuf::from("."))
+}
 
 fn plist_path() -> PathBuf {
-    dirs::home_dir()
-        .unwrap_or_else(|| PathBuf::from("."))
+    home_dir()
         .join("Library")
         .join("LaunchAgents")
         .join(format!("{}.plist", LABEL))
 }
 
 fn log_dir() -> PathBuf {
-    dirs::home_dir()
-        .unwrap_or_else(|| PathBuf::from("."))
+    home_dir()
         .join("Library")
         .join("Logs")
         .join("apple-to-last-fm")
+}
+
+fn gui_session(uid: u32) -> String {
+    format!("gui/{}", uid)
 }
 
 pub fn install() -> Result<()> {
@@ -67,8 +73,11 @@ pub fn install() -> Result<()> {
 
     // Bootstrap into the current user's GUI session.
     let uid = get_uid()?;
+    let plist_str = plist
+        .to_str()
+        .ok_or_else(|| AppError::Config("plist path is not valid UTF-8".to_string()))?;
     let status = Command::new("launchctl")
-        .args(["bootstrap", &format!("gui/{}", uid), plist.to_str().unwrap()])
+        .args(["bootstrap", &gui_session(uid), plist_str])
         .status()?;
 
     if !status.success() {
@@ -94,8 +103,9 @@ pub fn uninstall() -> Result<()> {
     }
 
     let uid = get_uid()?;
+    let plist_str = plist.to_string_lossy();
     let _ = Command::new("launchctl")
-        .args(["bootout", &format!("gui/{}", uid), plist.to_str().unwrap()])
+        .args(["bootout", &gui_session(uid), &*plist_str])
         .status();
 
     std::fs::remove_file(&plist)?;

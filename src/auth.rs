@@ -37,16 +37,20 @@ pub fn run(config_path: &Path) -> Result<()> {
     Ok(())
 }
 
-fn prompt(label: &str) -> Result<String> {
+fn print_prompt(label: &str) -> Result<()> {
     print!("{}", label);
     io::stdout().flush()?;
+    Ok(())
+}
+
+fn prompt(label: &str) -> Result<String> {
+    print_prompt(label)?;
     let mut input = String::new();
     io::stdin().read_line(&mut input)?;
     Ok(input.trim().to_string())
 }
 
 fn prompt_password(label: &str) -> Result<String> {
-    print!("{}", label);
-    io::stdout().flush()?;
+    print_prompt(label)?;
     rpassword::read_password().map_err(AppError::Io)
 }
