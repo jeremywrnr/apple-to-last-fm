@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 description = "Scrobble Apple Music plays to Last.fm"
 license = "MIT"
+homepage = "https://github.com/jeremywrnr/apple-to-last-fm"
+repository = "https://github.com/jeremywrnr/apple-to-last-fm"
 
 [dependencies]
 apple-music = "0.11"
@@ -14,6 +16,7 @@ tokio = { version = "1", features = ["full"] }
 toml = "0.8"
 tracing = "0.1"
 tracing-subscriber = "0.3"
+tracing-oslog = "0.3"
 dirs = "5"
 rustfm-scrobble = "1.1"
 rpassword = "7"
@@ -24,3 +27,8 @@ libc = "0.2"
 # position (rust-lang/rust#79813) that will become a hard error in a future
 # Rust release. This local patch removes the semicolon; the rest is identical.
 wrapped-vec = { path = "patches/wrapped-vec" }
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"

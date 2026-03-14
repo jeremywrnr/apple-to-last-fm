@@ -11,6 +11,8 @@ use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 use tracing::{error, info, warn};
+use tracing_subscriber::prelude::*;
+use tracing_subscriber::filter::Targets;
 
 use config::{default_config_path, Config};
 use error::Result;
@@ -39,6 +41,9 @@ enum Command {
     /// Remove the launchd agent
     Uninstall,
 
+    /// Stream live logs from the daemon in the terminal
+    Logs,
+
     /// Start scrobbling (runs in foreground)
     Run,
 
@@ -50,7 +55,11 @@ enum Command {
 }
 
 fn main() -> Result<()> {
-    tracing_subscriber::fmt::init();
+    // Only forward logs from this crate — suppress rustls/ureq/etc. noise.
+    let filter = Targets::new().with_target("apple_to_last_fm", tracing::Level::INFO);
+    tracing_subscriber::registry()
+        .with(tracing_oslog::OsLogger::new("com.apple-to-last-fm", "default").with_filter(filter))
+        .init();
 
     let cli = Cli::parse();
     let config_path = cli.config.unwrap_or_else(default_config_path);
@@ -59,11 +68,26 @@ fn main() -> Result<()> {
         Command::Auth => auth::run(&config_path),
         Command::Install => daemon::install(),
         Command::Uninstall => daemon::uninstall(),
+        Command::Logs => cmd_logs(),
         Command::Status => cmd_status(),
         Command::Config => cmd_config(&config_path),
         Command::Run => cmd_run(&config_path),
     }
 }
+
+fn cmd_logs() -> Result<()> {
+    std::process::Command::new("log")
+        .args([
+            "stream",
+            "--predicate",
+            "subsystem == \"com.apple-to-last-fm\"",
+            "--level",
+            "info",
+        ])
+        .status()?;
+    Ok(())
+}
+
 
 fn cmd_status() -> Result<()> {
     match player::current_track()? {

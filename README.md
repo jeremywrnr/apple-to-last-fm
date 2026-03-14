@@ -5,10 +5,16 @@ Scrobble Apple Music plays to Last.fm on macOS.
 ## Requirements
 
 - macOS
-- [Rust](https://rustup.rs/)
 - A [Last.fm](https://www.last.fm) account
 
 ## Install
+
+```bash
+brew tap jeremywrnr/apple-to-last-fm
+brew install apple-to-last-fm
+```
+
+Or build from source:
 
 ```bash
 cargo build --release
@@ -39,13 +45,8 @@ apple-to-last-fm install     Install as a launchd daemon (starts on login)
 apple-to-last-fm uninstall   Remove the daemon
 apple-to-last-fm run         Run in the foreground (for testing)
 apple-to-last-fm status      Show what is currently playing
+apple-to-last-fm logs        Stream live logs from the daemon
 apple-to-last-fm config      Show config path and current settings
-```
-
-## Logs
-
-```bash
-tail -f ~/Library/Logs/apple-to-last-fm/output.log
 ```
 
 ## Config
