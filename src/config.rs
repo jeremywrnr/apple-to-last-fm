@@ -9,13 +9,7 @@ const CONFIG_FILE: &str = "config.toml";
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
-    /// Last.fm API key (from https://www.last.fm/api/account/create)
-    pub lastfm_api_key: String,
-
-    /// Last.fm API secret
-    pub lastfm_api_secret: String,
-
-    /// Last.fm session key (obtained after authenticating, stored here)
+    /// Last.fm session key (obtained after running `auth`, stored here)
     #[serde(default)]
     pub lastfm_session_key: Option<String>,
 
@@ -29,12 +23,17 @@ fn default_poll_interval() -> u64 {
 }
 
 impl Config {
+    pub fn new_empty() -> Self {
+        Config {
+            lastfm_session_key: None,
+            poll_interval_secs: DEFAULT_POLL_INTERVAL_SECS,
+        }
+    }
+
     pub fn load(path: &Path) -> Result<Self> {
         let content = std::fs::read_to_string(path)
             .map_err(|e| AppError::Config(format!("cannot read {}: {}", path.display(), e)))?;
-        let config: Config = toml::from_str(&content)?;
-        config.validate()?;
-        Ok(config)
+        Ok(toml::from_str(&content)?)
     }
 
     pub fn save(&self, path: &Path) -> Result<()> {
@@ -45,23 +44,10 @@ impl Config {
         std::fs::write(path, content)?;
         Ok(())
     }
-
-    fn validate(&self) -> Result<()> {
-        if self.lastfm_api_key.trim().is_empty() {
-            return Err(AppError::Config(
-                "lastfm_api_key must not be empty".to_string(),
-            ));
-        }
-        if self.lastfm_api_secret.trim().is_empty() {
-            return Err(AppError::Config(
-                "lastfm_api_secret must not be empty".to_string(),
-            ));
-        }
-        Ok(())
-    }
 }
 
-/// Returns the default config file path: ~/.config/apple-to-last-fm/config.toml
+/// Returns the default config file path:
+/// ~/Library/Application Support/apple-to-last-fm/config.toml  (macOS)
 pub fn default_config_path() -> PathBuf {
     dirs::config_dir()
         .unwrap_or_else(|| PathBuf::from("."))

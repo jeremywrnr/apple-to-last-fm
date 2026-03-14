@@ -1,5 +1,7 @@
 mod auth;
 mod config;
+mod credentials;
+mod daemon;
 mod error;
 mod player;
 mod scrobbler;
@@ -18,7 +20,7 @@ use state::{Action, ScrobbleStateMachine};
 #[derive(Parser)]
 #[command(name = "apple-to-last-fm", about = "Scrobble Apple Music to Last.fm")]
 struct Cli {
-    /// Path to config file (default: ~/.config/apple-to-last-fm/config.toml)
+    /// Path to config file
     #[arg(long, global = true)]
     config: Option<PathBuf>,
 
@@ -30,6 +32,12 @@ struct Cli {
 enum Command {
     /// Authenticate with Last.fm and save a session key to config
     Auth,
+
+    /// Install as a launchd agent (starts on login, restarts automatically)
+    Install,
+
+    /// Remove the launchd agent
+    Uninstall,
 
     /// Start scrobbling (runs in foreground)
     Run,
@@ -49,6 +57,8 @@ fn main() -> Result<()> {
 
     match cli.command {
         Command::Auth => auth::run(&config_path),
+        Command::Install => daemon::install(),
+        Command::Uninstall => daemon::uninstall(),
         Command::Status => cmd_status(),
         Command::Config => cmd_config(&config_path),
         Command::Run => cmd_run(&config_path),
@@ -65,16 +75,19 @@ fn cmd_status() -> Result<()> {
 
 fn cmd_config(config_path: &std::path::Path) -> Result<()> {
     println!("Config path: {}", config_path.display());
-    let config = Config::load(config_path)?;
-    println!("  poll_interval_secs: {}", config.poll_interval_secs);
-    println!("  lastfm_api_key:     {}", config.lastfm_api_key);
-    println!(
-        "  lastfm_session_key: {}",
-        config
-            .lastfm_session_key
-            .as_deref()
-            .unwrap_or("(not set — run 'auth' first)"),
-    );
+    match Config::load(config_path) {
+        Ok(config) => {
+            println!("  poll_interval_secs: {}", config.poll_interval_secs);
+            println!(
+                "  lastfm_session_key: {}",
+                config
+                    .lastfm_session_key
+                    .as_deref()
+                    .unwrap_or("(not set — run 'auth' first)"),
+            );
+        }
+        Err(_) => println!("  (no config file — run 'auth' to set up)"),
+    }
     Ok(())
 }
 

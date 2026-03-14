@@ -3,29 +3,30 @@ use std::path::Path;
 
 use rustfm_scrobble::Scrobbler;
 
-use crate::config::Config;
+use crate::credentials;
 use crate::error::{AppError, Result};
 
 /// Runs the interactive auth flow.
-///
-/// On first run (no config file), also prompts for API key and secret.
-/// On subsequent runs, loads the existing config and just re-authenticates.
-/// Either way, the session key is written back to the config file on success.
+/// Prompts for Last.fm username and password, exchanges them for a session key,
+/// and saves it to the config file. No API credentials are needed from the user.
 pub fn run(config_path: &Path) -> Result<()> {
     println!("Authenticating with Last.fm");
     println!("(Your password is not stored — only the session key is saved.)\n");
 
-    let mut config = load_or_create_config(config_path)?;
-
     let username = prompt("Last.fm username: ")?;
     let password = prompt_password("Last.fm password: ")?;
 
-    let mut scrobbler = Scrobbler::new(&config.lastfm_api_key, &config.lastfm_api_secret);
+    let mut scrobbler = Scrobbler::new(credentials::API_KEY, credentials::API_SECRET);
     let session = scrobbler
         .authenticate_with_password(&username, &password)
         .map_err(|e| AppError::Scrobbler(format!("{:?}", e)))?;
 
     println!("\nAuthenticated as {}.", session.name);
+
+    // Load existing config if present (preserves poll_interval_secs etc.),
+    // otherwise start fresh.
+    let mut config = crate::config::Config::load(config_path)
+        .unwrap_or_else(|_| crate::config::Config::new_empty());
 
     config.lastfm_session_key = Some(session.key);
     config.save(config_path)?;
@@ -34,27 +35,6 @@ pub fn run(config_path: &Path) -> Result<()> {
     println!("You can now run: apple-to-last-fm run");
 
     Ok(())
-}
-
-/// Loads an existing config, or walks the user through creating one from scratch.
-fn load_or_create_config(config_path: &Path) -> Result<Config> {
-    match Config::load(config_path) {
-        Ok(config) => Ok(config),
-        Err(_) => {
-            println!("No config found at {}.", config_path.display());
-            println!("Get your API credentials at https://www.last.fm/api/account/create\n");
-
-            let api_key = prompt("Last.fm API key: ")?;
-            let api_secret = prompt("Last.fm API secret: ")?;
-
-            Ok(Config {
-                lastfm_api_key: api_key,
-                lastfm_api_secret: api_secret,
-                lastfm_session_key: None,
-                poll_interval_secs: 10,
-            })
-        }
-    }
 }
 
 fn prompt(label: &str) -> Result<String> {

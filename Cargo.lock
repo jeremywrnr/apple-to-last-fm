@@ -90,6 +90,7 @@ dependencies = [
  "apple-music",
  "clap",
  "dirs",
+ "libc",
  "rpassword",
  "rustfm-scrobble",
  "serde",
@@ -2454,8 +2455,6 @@ dependencies = [
 [[package]]
 name = "wrapped-vec"
 version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b85e08702c1e919669e1e90213c9c75ea4bb689d0f3970347e2b37c04600b4e5"
 dependencies = [
  "proc-macro2",
  "quote",

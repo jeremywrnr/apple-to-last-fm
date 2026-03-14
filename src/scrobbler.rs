@@ -1,6 +1,7 @@
 use rustfm_scrobble::{Scrobble, Scrobbler};
 
 use crate::config::Config;
+use crate::credentials;
 use crate::error::{AppError, Result};
 use crate::player::Track;
 
@@ -9,10 +10,9 @@ pub struct LastFmClient {
 }
 
 impl LastFmClient {
-    /// Build a client from config. Requires a session key to already be present
-    /// (i.e. the user has run `auth`).
+    /// Build a client from config. Requires a session key (i.e. user has run `auth`).
     pub fn new(config: &Config) -> Result<Self> {
-        let mut scrobbler = Scrobbler::new(&config.lastfm_api_key, &config.lastfm_api_secret);
+        let mut scrobbler = Scrobbler::new(credentials::API_KEY, credentials::API_SECRET);
 
         match &config.lastfm_session_key {
             Some(key) => scrobbler.authenticate_with_session_key(key),

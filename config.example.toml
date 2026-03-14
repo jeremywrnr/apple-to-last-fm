@@ -1,13 +1,8 @@
 # apple-to-last-fm configuration
-# Copy this to ~/.config/apple-to-last-fm/config.toml and fill in your values.
 #
-# Get API credentials at: https://www.last.fm/api/account/create
+# You don't need to create this manually.
+# Run `apple-to-last-fm auth` and it will be created automatically.
+#
+# The only field you might want to set manually:
 
-lastfm_api_key    = "your_api_key_here"
-lastfm_api_secret = "your_api_secret_here"
-
-# Session key is written here automatically after running 'auth'
-# lastfm_session_key = ""
-
-# How often to check what Apple Music is playing (seconds)
-poll_interval_secs = 10
+# poll_interval_secs = 10
