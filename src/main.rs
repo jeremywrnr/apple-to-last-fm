@@ -1,3 +1,4 @@
+mod auth;
 mod config;
 mod error;
 mod player;
@@ -27,6 +28,9 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    /// Authenticate with Last.fm and save a session key to config
+    Auth,
+
     /// Start scrobbling (runs in foreground)
     Run,
 
@@ -44,6 +48,7 @@ fn main() -> Result<()> {
     let config_path = cli.config.unwrap_or_else(default_config_path);
 
     match cli.command {
+        Command::Auth => auth::run(&config_path),
         Command::Status => cmd_status(),
         Command::Config => cmd_config(&config_path),
         Command::Run => cmd_run(&config_path),
