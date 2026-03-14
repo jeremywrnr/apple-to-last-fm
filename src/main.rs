@@ -1,14 +1,18 @@
 mod config;
 mod error;
 mod player;
+mod scrobbler;
+mod state;
 
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
-use tracing::info;
+use tracing::{error, info, warn};
 
 use config::{default_config_path, Config};
 use error::Result;
+use scrobbler::LastFmClient;
+use state::{Action, ScrobbleStateMachine};
 
 #[derive(Parser)]
 #[command(name = "apple-to-last-fm", about = "Scrobble Apple Music to Last.fm")]
@@ -71,6 +75,8 @@ fn cmd_config(config_path: &std::path::Path) -> Result<()> {
 
 fn cmd_run(config_path: &std::path::Path) -> Result<()> {
     let config = Config::load(config_path)?;
+    let mut client = LastFmClient::new(&config)?;
+    let mut sm = ScrobbleStateMachine::new();
     let interval = std::time::Duration::from_secs(config.poll_interval_secs);
 
     info!(
@@ -80,11 +86,31 @@ fn cmd_run(config_path: &std::path::Path) -> Result<()> {
     println!("Scrobbler running. Press Ctrl-C to stop.");
 
     loop {
-        match player::current_track() {
-            Ok(Some(track)) => info!("Now playing: {}", track),
-            Ok(None) => {}
-            Err(e) => eprintln!("Error polling Apple Music: {}", e),
+        let current = match player::current_track() {
+            Ok(track) => track,
+            Err(e) => {
+                warn!("Error polling Apple Music: {}", e);
+                None
+            }
+        };
+
+        for action in sm.tick(current.as_ref()) {
+            match action {
+                Action::SendNowPlaying(track) => {
+                    info!("Now playing: {}", track);
+                    if let Err(e) = client.now_playing(&track) {
+                        error!("Failed to send now-playing: {}", e);
+                    }
+                }
+                Action::Scrobble(track) => {
+                    info!("Scrobbling: {}", track);
+                    if let Err(e) = client.scrobble(&track) {
+                        error!("Failed to scrobble: {}", e);
+                    }
+                }
+            }
         }
+
         std::thread::sleep(interval);
     }
 }
