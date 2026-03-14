@@ -10,7 +10,7 @@ Scrobble Apple Music plays to Last.fm on macOS.
 ## Install
 
 ```bash
-brew tap jeremywrnr/apple-to-last-fm
+brew tap jeremywrnr/tap
 brew install apple-to-last-fm
 ```
 
