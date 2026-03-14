@@ -21,3 +21,5 @@ tap = "jeremywrnr/homebrew-tap"
 publish-jobs = ["homebrew"]
 # Whether to install an updater program
 install-updater = false
+# Don't regenerate CI — we have custom env vars (LASTFM_API_KEY/SECRET) in the build step
+allow-dirty = ["ci"]
