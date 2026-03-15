@@ -46,6 +46,53 @@ impl Config {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn roundtrip_with_session_key() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("config.toml");
+
+        let mut config = Config::new_empty();
+        config.lastfm_session_key = Some("abc123".to_string());
+        config.poll_interval_secs = 30;
+        config.save(&path).unwrap();
+
+        let loaded = Config::load(&path).unwrap();
+        assert_eq!(loaded.lastfm_session_key.as_deref(), Some("abc123"));
+        assert_eq!(loaded.poll_interval_secs, 30);
+    }
+
+    #[test]
+    fn roundtrip_empty_uses_defaults() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("config.toml");
+
+        Config::new_empty().save(&path).unwrap();
+
+        let loaded = Config::load(&path).unwrap();
+        assert_eq!(loaded.lastfm_session_key, None);
+        assert_eq!(loaded.poll_interval_secs, DEFAULT_POLL_INTERVAL_SECS);
+    }
+
+    #[test]
+    fn load_missing_file_errors() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("nonexistent.toml");
+        assert!(Config::load(&path).is_err());
+    }
+
+    #[test]
+    fn save_creates_parent_dirs() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("a").join("b").join("config.toml");
+        Config::new_empty().save(&path).unwrap();
+        assert!(path.exists());
+    }
+}
+
 /// Returns the default config file path:
 /// ~/Library/Application Support/apple-to-last-fm/config.toml  (macOS)
 pub fn default_config_path() -> PathBuf {
