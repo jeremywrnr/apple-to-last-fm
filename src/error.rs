@@ -18,7 +18,6 @@ pub enum AppError {
     #[error("TOML serialize error: {0}")]
     TomlSerialize(#[from] toml::ser::Error),
 
-    // rustfm_scrobble::ScrobblerError also doesn't implement std::error::Error.
     #[error("Last.fm error: {0}")]
     Scrobbler(String),
 }

@@ -1,10 +1,8 @@
 use std::io::{self, Write};
 use std::path::Path;
 
-use rustfm_scrobble::Scrobbler;
-
-use crate::credentials;
 use crate::error::{AppError, Result};
+use crate::scrobbler;
 
 /// Runs the interactive auth flow.
 /// Prompts for Last.fm username and password, exchanges them for a session key,
@@ -16,17 +14,16 @@ pub fn run(config_path: &Path) -> Result<()> {
 
     println!("Authenticating with Last.fm");
     if config.lastfm_session_key.is_some() {
-        println!("Note: already authenticated — re-authenticating will replace the existing session key.");
+        println!(
+            "Note: already authenticated — re-authenticating will replace the existing session key."
+        );
     }
     println!("(Your password is not stored — only the session key is saved.)\n");
 
     let username = prompt("Last.fm username: ")?;
     let password = prompt_password("Last.fm password: ")?;
 
-    let mut scrobbler = Scrobbler::new(credentials::API_KEY, credentials::API_SECRET);
-    let session = scrobbler
-        .authenticate_with_password(&username, &password)
-        .map_err(|e| AppError::Scrobbler(format!("{:?}", e)))?;
+    let session = scrobbler::authenticate(&username, &password)?;
 
     println!("\nAuthenticated as {}.", session.name);
 

@@ -11,10 +11,10 @@ use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 use tracing::{error, info, warn};
-use tracing_subscriber::prelude::*;
 use tracing_subscriber::filter::Targets;
+use tracing_subscriber::prelude::*;
 
-use config::{default_config_path, Config};
+use config::{Config, default_config_path};
 use error::Result;
 use scrobbler::LastFmClient;
 use state::{Action, ScrobbleStateMachine};
@@ -83,7 +83,6 @@ fn cmd_logs() -> Result<()> {
     Ok(())
 }
 
-
 fn cmd_status() -> Result<()> {
     match player::current_track()? {
         Some(track) => println!("Now playing: {}", track),
@@ -112,7 +111,7 @@ fn cmd_config(config_path: &std::path::Path) -> Result<()> {
 
 fn cmd_run(config_path: &std::path::Path) -> Result<()> {
     let config = Config::load(config_path)?;
-    let mut client = LastFmClient::new(&config)?;
+    let client = LastFmClient::new(&config)?;
     let mut sm = ScrobbleStateMachine::new();
     let interval = std::time::Duration::from_secs(config.poll_interval_secs);
 

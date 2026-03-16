@@ -59,7 +59,11 @@ impl ScrobbleStateMachine {
                 }
             }
 
-            State::Tracking { track, started_at, scrobbled } => {
+            State::Tracking {
+                track,
+                started_at,
+                scrobbled,
+            } => {
                 match current {
                     // Player stopped or paused — go idle.
                     None => {
