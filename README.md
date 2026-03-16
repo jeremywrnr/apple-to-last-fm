@@ -62,11 +62,11 @@ poll_interval_secs = 10  # how often to check Apple Music (default: 10)
 ```bash
 git clone https://github.com/jeremywrnr/apple-to-last-fm.git
 cd apple-to-last-fm
-cargo build
-cargo test
+just        # list available commands
+just build  # build in debug mode
+just test   # run tests
+just check  # run tests, linter, and format check
 ```
-
-Release builds require `LASTFM_API_KEY` and `LASTFM_API_SECRET` environment variables.
 
 ## License
 
