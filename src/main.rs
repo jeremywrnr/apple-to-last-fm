@@ -35,7 +35,11 @@ enum Command {
     Auth,
 
     /// Install as a launchd agent (starts on login, restarts automatically)
-    Install,
+    Install {
+        /// Force re-authentication before installing
+        #[arg(long)]
+        reauth: bool,
+    },
 
     /// Remove the launchd agent
     Uninstall,
@@ -65,7 +69,13 @@ fn main() -> Result<()> {
 
     match cli.command {
         Command::Auth => auth::run(&config_path),
-        Command::Install => daemon::install(),
+        Command::Install { reauth } => {
+            let config = Config::load(&config_path).unwrap_or_else(|_| Config::new_empty());
+            if reauth || !config.is_authenticated() {
+                auth::run(&config_path)?;
+            }
+            daemon::install()
+        }
         Command::Uninstall => daemon::uninstall(),
         Command::Logs => cmd_logs(),
         Command::Status => cmd_status(),

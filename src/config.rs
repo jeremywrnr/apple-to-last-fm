@@ -40,6 +40,13 @@ impl Config {
         }
     }
 
+    /// Returns true if all Last.fm credentials are present.
+    pub fn is_authenticated(&self) -> bool {
+        self.lastfm_api_key.is_some()
+            && self.lastfm_api_secret.is_some()
+            && self.lastfm_session_key.is_some()
+    }
+
     pub fn api_key(&self) -> Result<&str> {
         self.lastfm_api_key.as_deref().ok_or_else(|| {
             AppError::Config("No API key in config. Run 'apple-to-last-fm auth' first.".into())
