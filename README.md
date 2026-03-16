@@ -5,7 +5,7 @@ Scrobble Apple Music plays to Last.fm on macOS.
 ## Requirements
 
 - macOS
-- A [Last.fm](https://www.last.fm) account
+- A [Last.fm](https://www.last.fm/user/jwrnr) account
 
 ## Install
 
