@@ -14,11 +14,10 @@ brew tap jeremywrnr/tap
 brew install apple-to-last-fm
 ```
 
-Or build from source:
+Or install from [crates.io](https://crates.io/crates/apple-to-last-fm):
 
 ```bash
-cargo build --release
-sudo cp target/release/apple-to-last-fm /usr/local/bin/
+cargo install apple-to-last-fm
 ```
 
 ## Setup
