@@ -74,7 +74,17 @@ fn main() -> Result<()> {
             if reauth || !config.is_authenticated() {
                 auth::run(&config_path)?;
             }
-            daemon::install()
+            daemon::install()?;
+            // Reload config to get the username saved during auth
+            if let Ok(config) = Config::load(&config_path)
+                && let Some(username) = &config.lastfm_username
+            {
+                println!(
+                    "Check your scrobbles at https://www.last.fm/user/{}",
+                    username
+                );
+            }
+            Ok(())
         }
         Command::Uninstall => daemon::uninstall(),
         Command::Logs => cmd_logs(),

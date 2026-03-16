@@ -27,8 +27,10 @@ apple-to-last-fm install
 ```
 
 This handles everything: authenticates with Last.fm (if not already done) and installs a
-background daemon that starts automatically on login. Plays will be scrobbled whenever
-Apple Music is running.
+background daemon that starts automatically on login. No passwords are stored — authentication
+is handled entirely through your browser. Plays will be scrobbled whenever Apple Music is running.
+
+You can manage authorized applications at [Last.fm settings](https://www.last.fm/settings/applications).
 
 ## Usage
 

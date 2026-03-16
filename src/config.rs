@@ -17,6 +17,10 @@ pub struct Config {
     #[serde(default)]
     pub lastfm_api_secret: Option<String>,
 
+    /// Last.fm username
+    #[serde(default)]
+    pub lastfm_username: Option<String>,
+
     /// Last.fm session key (obtained after running `auth`, stored here)
     #[serde(default)]
     pub lastfm_session_key: Option<String>,
@@ -35,6 +39,7 @@ impl Config {
         Config {
             lastfm_api_key: None,
             lastfm_api_secret: None,
+            lastfm_username: None,
             lastfm_session_key: None,
             poll_interval_secs: DEFAULT_POLL_INTERVAL_SECS,
         }

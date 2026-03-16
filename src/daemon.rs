@@ -90,9 +90,11 @@ pub fn install() -> Result<()> {
         ));
     }
 
-    println!("Daemon installed and started.");
-    println!("Logs: {}/", log_dir.display());
-    println!("To stop: apple-to-last-fm uninstall");
+    println!("Scrobbler installed and running in the background.");
+    println!("It will start automatically on login.\n");
+    println!("Play a song in Apple Music, then verify with:");
+    println!("  apple-to-last-fm logs\n");
+    println!("To remove: apple-to-last-fm uninstall");
 
     Ok(())
 }
@@ -107,6 +109,7 @@ pub fn uninstall() -> Result<()> {
         let plist_str = plist.to_string_lossy();
         let _ = Command::new("launchctl")
             .args(["bootout", &session, &*plist_str])
+            .stderr(std::process::Stdio::null())
             .status();
         std::fs::remove_file(&plist)?;
     }
@@ -114,6 +117,7 @@ pub fn uninstall() -> Result<()> {
     let service = format!("{}/{}", session, LABEL);
     let _ = Command::new("launchctl")
         .args(["bootout", &service])
+        .stderr(std::process::Stdio::null())
         .status();
 
     println!("Daemon stopped and uninstalled.");

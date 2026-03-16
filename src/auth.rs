@@ -30,9 +30,7 @@ pub fn run(config_path: &Path) -> Result<()> {
         println!("  Application name:        apple-to-last-fm");
         println!("  Application description: Scrobble Apple Music plays to Last.fm");
         println!("  Callback URL:            (leave blank)");
-        println!(
-            "  Application homepage:    https://github.com/jeremywrnr/apple-to-last-fm (optional)\n"
-        );
+        println!("  Application homepage:    (leave blank)\n");
         println!("After submitting, enter the credentials below.\n");
         let api_key = prompt("API key: ")?;
         let api_secret = prompt("Shared secret: ")?;
@@ -63,11 +61,9 @@ pub fn run(config_path: &Path) -> Result<()> {
 
     println!("Authenticated as {}.", session.name);
 
+    config.lastfm_username = Some(session.name);
     config.lastfm_session_key = Some(session.key);
     config.save(config_path)?;
-
-    println!("Session key saved to {}.", config_path.display());
-    println!("You can now run: apple-to-last-fm run");
 
     Ok(())
 }
