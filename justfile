@@ -6,6 +6,14 @@ default:
 build:
     cargo build
 
+# Run in the foreground (debug build)
+run:
+    cargo run -- run
+
+# Install debug build locally
+install:
+    cargo install --path .
+
 # Run all tests
 test:
     cargo test
@@ -22,10 +30,6 @@ fmt:
 fmt-check:
     cargo fmt --check
 
-# Run in the foreground (debug build)
-run:
-    cargo run -- run
-
 # Run all checks (test, lint, format)
 check: test lint fmt-check
 
@@ -40,6 +44,6 @@ release: check
     echo "Published to crates.io"
 
     git tag "v${version}"
-    git push
-    git push --tags
+    git push && git push --tags
     echo "Pushed v${version} to GitHub"
+

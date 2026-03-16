@@ -1,6 +1,5 @@
 mod auth;
 mod config;
-mod credentials;
 mod daemon;
 mod error;
 mod player;

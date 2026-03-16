@@ -9,6 +9,14 @@ const CONFIG_FILE: &str = "config.toml";
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
+    /// Last.fm API key (obtained from https://www.last.fm/api/account/create)
+    #[serde(default)]
+    pub lastfm_api_key: Option<String>,
+
+    /// Last.fm API shared secret
+    #[serde(default)]
+    pub lastfm_api_secret: Option<String>,
+
     /// Last.fm session key (obtained after running `auth`, stored here)
     #[serde(default)]
     pub lastfm_session_key: Option<String>,
@@ -25,9 +33,23 @@ fn default_poll_interval() -> u64 {
 impl Config {
     pub fn new_empty() -> Self {
         Config {
+            lastfm_api_key: None,
+            lastfm_api_secret: None,
             lastfm_session_key: None,
             poll_interval_secs: DEFAULT_POLL_INTERVAL_SECS,
         }
+    }
+
+    pub fn api_key(&self) -> Result<&str> {
+        self.lastfm_api_key.as_deref().ok_or_else(|| {
+            AppError::Config("No API key in config. Run 'apple-to-last-fm auth' first.".into())
+        })
+    }
+
+    pub fn api_secret(&self) -> Result<&str> {
+        self.lastfm_api_secret.as_deref().ok_or_else(|| {
+            AppError::Config("No API secret in config. Run 'apple-to-last-fm auth' first.".into())
+        })
     }
 
     pub fn load(path: &Path) -> Result<Self> {

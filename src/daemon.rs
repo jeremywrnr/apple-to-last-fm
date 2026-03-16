@@ -28,6 +28,9 @@ fn gui_session(uid: u32) -> String {
 }
 
 pub fn install() -> Result<()> {
+    // Remove any existing daemon first so we always use the current binary.
+    uninstall()?;
+
     let binary = std::env::current_exe()
         .map_err(|e| AppError::Config(format!("cannot determine binary path: {}", e)))?;
 
@@ -95,22 +98,25 @@ pub fn install() -> Result<()> {
 }
 
 pub fn uninstall() -> Result<()> {
-    let plist = plist_path();
+    let uid = get_uid()?;
+    let session = gui_session(uid);
 
-    if !plist.exists() {
-        println!("Daemon is not installed (no plist at {}).", plist.display());
-        return Ok(());
+    // Try bootout by plist path first, then by service label as fallback.
+    let plist = plist_path();
+    if plist.exists() {
+        let plist_str = plist.to_string_lossy();
+        let _ = Command::new("launchctl")
+            .args(["bootout", &session, &*plist_str])
+            .status();
+        std::fs::remove_file(&plist)?;
     }
 
-    let uid = get_uid()?;
-    let plist_str = plist.to_string_lossy();
+    let service = format!("{}/{}", session, LABEL);
     let _ = Command::new("launchctl")
-        .args(["bootout", &gui_session(uid), &*plist_str])
+        .args(["bootout", &service])
         .status();
 
-    std::fs::remove_file(&plist)?;
     println!("Daemon stopped and uninstalled.");
-
     Ok(())
 }
 

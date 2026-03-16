@@ -20,7 +20,6 @@ tracing-oslog = "0.3"
 dirs = "5"
 reqwest = { version = "0.12", features = ["blocking"] }
 md-5 = "0.10"
-rpassword = "7"
 libc = "0.2"
 
 [dev-dependencies]
