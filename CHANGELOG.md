@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.2
+
+- `logs` command shows auth status and Apple Music connection before streaming
+- Updated deps: `dirs` 6, `toml` 1, `reqwest` 0.13
+- Improved install messages: background/auto-start info, profile link, verification steps
+- Save Last.fm username to config; show personalized profile link after install
+- Suppress noisy `launchctl bootout` errors on fresh installs
+- Release script auto-generates `Cargo.lock`
+- Added changelog, `just` link in README
+- Added Last.fm application settings link and verification screenshot to README
+
 ## 1.1.0
 
 - Browser-based auth flow — no password ever touches the terminal

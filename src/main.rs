@@ -87,14 +87,27 @@ fn main() -> Result<()> {
             Ok(())
         }
         Command::Uninstall => daemon::uninstall(),
-        Command::Logs => cmd_logs(),
+        Command::Logs => cmd_logs(&config_path),
         Command::Status => cmd_status(),
         Command::Config => cmd_config(&config_path),
         Command::Run => cmd_run(&config_path),
     }
 }
 
-fn cmd_logs() -> Result<()> {
+fn cmd_logs(config_path: &std::path::Path) -> Result<()> {
+    match Config::load(config_path) {
+        Ok(config) if config.is_authenticated() => {
+            if let Some(username) = &config.lastfm_username {
+                println!(
+                    "Authenticated as {} — https://www.last.fm/user/{}",
+                    username, username
+                );
+            } else {
+                println!("Authenticated with Last.fm");
+            }
+        }
+        _ => println!("Not authenticated — run 'apple-to-last-fm install'"),
+    }
     match player::current_track() {
         Ok(Some(track)) => println!("Apple Music connected — now playing: {}", track),
         Ok(None) => println!("Apple Music connected — nothing playing"),
