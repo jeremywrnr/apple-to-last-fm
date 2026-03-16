@@ -40,6 +40,7 @@ release: check
     version=$(cargo metadata --format-version=1 --no-deps | jq -r '.packages[0].version')
     echo "Publishing v${version}"
 
+    cargo generate-lockfile
     cargo publish
     echo "Published to crates.io"
 

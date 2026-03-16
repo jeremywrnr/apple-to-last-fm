@@ -73,6 +73,8 @@ poll_interval_secs = 10  # how often to check Apple Music (default: 10)
 
 ## Development
 
+Requires [just](https://just.systems/man/en/) for task running.
+
 ```bash
 git clone https://github.com/jeremywrnr/apple-to-last-fm.git
 cd apple-to-last-fm

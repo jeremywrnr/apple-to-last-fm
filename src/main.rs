@@ -95,6 +95,12 @@ fn main() -> Result<()> {
 }
 
 fn cmd_logs() -> Result<()> {
+    match player::current_track() {
+        Ok(Some(track)) => println!("Apple Music connected — now playing: {}", track),
+        Ok(None) => println!("Apple Music connected — nothing playing"),
+        Err(_) => println!("Apple Music not available"),
+    }
+    println!("Streaming logs...\n");
     let predicate = format!("subsystem == \"{}\"", daemon::LABEL);
     std::process::Command::new("log")
         .args(["stream", "--predicate", &predicate, "--level", "info"])
