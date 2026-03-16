@@ -57,6 +57,17 @@ by the `auth` command. The only field you may want to set manually:
 poll_interval_secs = 10  # how often to check Apple Music (default: 10)
 ```
 
+## Development
+
+```bash
+git clone https://github.com/jeremywrnr/apple-to-last-fm.git
+cd apple-to-last-fm
+cargo build
+cargo test
+```
+
+Release builds require `LASTFM_API_KEY` and `LASTFM_API_SECRET` environment variables.
+
 ## License
 
 [MIT](https://jeremywrnr.com/mit-license/)
