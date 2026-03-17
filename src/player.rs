@@ -29,7 +29,7 @@ impl std::fmt::Display for Track {
 }
 
 /// Check if Apple Music is running without launching it.
-fn is_music_running() -> bool {
+pub fn is_music_running() -> bool {
     Command::new("pgrep")
         .args(["-x", "Music"])
         .output()

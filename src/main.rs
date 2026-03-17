@@ -108,10 +108,14 @@ fn cmd_logs(config_path: &std::path::Path) -> Result<()> {
         }
         _ => println!("Not authenticated — run 'apple-to-last-fm install'"),
     }
-    match player::current_track() {
-        Ok(Some(track)) => println!("Apple Music connected — now playing: {}", track),
-        Ok(None) => println!("Apple Music connected — nothing playing"),
-        Err(_) => println!("Apple Music not available"),
+    if player::is_music_running() {
+        match player::current_track() {
+            Ok(Some(track)) => println!("Apple Music connected — now playing: {}", track),
+            Ok(None) => println!("Apple Music connected — nothing playing"),
+            Err(_) => println!("Apple Music not available"),
+        }
+    } else {
+        println!("Apple Music is not running");
     }
     println!("Streaming logs...\n");
     let predicate = format!("subsystem == \"{}\"", daemon::LABEL);
