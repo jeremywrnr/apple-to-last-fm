@@ -85,7 +85,7 @@ dependencies = [
 
 [[package]]
 name = "apple-to-last-fm"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "apple-music",
  "clap",

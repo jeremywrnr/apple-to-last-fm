@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.2.0
+## 1.2.1
 
 - Fix: no longer auto-launches Apple Music when it isn't running — the daemon now checks if the Music process exists before polling via AppleScript
 - `logs` command now shows "Apple Music is not running" instead of "connected" when the app isn't open
