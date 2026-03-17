@@ -1,3 +1,5 @@
+use std::process::Command;
+
 use apple_music::{AppleMusic, PlayerState};
 use tracing::debug;
 
@@ -26,8 +28,21 @@ impl std::fmt::Display for Track {
     }
 }
 
+/// Check if Apple Music is running without launching it.
+fn is_music_running() -> bool {
+    Command::new("pgrep")
+        .args(["-x", "Music"])
+        .output()
+        .is_ok_and(|o| o.status.success())
+}
+
 /// Returns the currently playing track, or `None` if Apple Music is stopped/paused.
 pub fn current_track() -> Result<Option<Track>> {
+    if !is_music_running() {
+        debug!("Apple Music is not running — skipping");
+        return Ok(None);
+    }
+
     let app_data = AppleMusic::get_application_data()?;
 
     match app_data.player_state {
